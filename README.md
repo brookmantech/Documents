@@ -1,5 +1,5 @@
 ![BT logo](http://brookmantech.com/img/logo.png "logo")
-# Documentation for used Image Sensor
+# Technical Documentation for Image Sensor
 
 [official website][website]  
 
