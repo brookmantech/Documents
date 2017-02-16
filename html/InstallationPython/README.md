@@ -115,7 +115,7 @@ AnacondaではSpyderがインストールされています。
 
 セキュリティー設定をした後に、もしかするとアップデート案内が表示されるかもしれません。  
 無慈悲な心で閉じてしまいましょう。  
-（バッグっているのかこのVerでは何故かOKボタンが効きません。Closeしてやりましょう）
+（condaからupdateできます）
 
 <img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/14.JPG" width="400">
 
