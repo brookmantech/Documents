@@ -1,123 +1,123 @@
-#Python���̗����グ��
+#Python環境の立ち上げ方
 
-�����ł�  
+ここでは  
 
->�Ewindows7 x32  
->�EAnaconda�iContinuum Analytics�А�Python�f�B�X�g���r���[�V����
+>・windows7 x32  
+>・Anaconda（Continuum Analytics社製Pythonディストリビューション
 
-���g�p���A�摜�������ł���Ƃ���܂Ői�߂Ă݂܂��B  
+を使用し、画像処理ができるところまで進めてみます。  
 
-�I�[���C��������Anaconda�炭����ł��B
+オールインワンでAnacondaらくちんです。
 
-##Anaconda�̃_�E�����[�h
+##Anacondaのダウンロード
 
-https://www.continuum.io/ ����_�E�����[�h���܂��B
+https://www.continuum.io/ からダウンロードします。
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/01.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/01.JPG" width="400">
 
-Python3.x��2.7�͌݊������Ⴍ�A2.7�͊J�����I����Ă��܂��B  
-�p�r�I�ɓ��ɍ��邱�Ƃ��Ȃ��̂ł��ƂȂ���3.x��I�т܂��傤
+Python3.xと2.7は互換性が低く、2.7は開発も終わっています。  
+用途的に特に困ることもないのでおとなしく3.xを選びましょう
 
-x64/x32��PC�ɍ��킹�܂��傤�B  
-�ߋ�x64�̓o�O�����������悤�ł����A��������Ă��Ă���悤�ł��B  
-�������T�C�Y�l�����x64�̕���������������܂���B����܂��񂪁B
+x64/x32はPCに合わせましょう。  
+過去x64はバグが多かったようですが、解決されてきているようです。  
+メモリサイズ考えるとx64の方がいいかもしれません。しりませんが。
 
-##Anaconda�̃C���X�g�[��
+##Anacondaのインストール
 
-###1.�_�E�����[�h���I�������A�_�u���N���b�N�B
+###1.ダウンロードが終わったら、ダブルクリック。
 
-[Next]�������Ď��ɐi�݂܂��傤�B
+[Next]を押して次に進みましょう。
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/02.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/02.JPG" width="400">
 
-###2.���C�Z���X����
+###2.ライセンス条項
 
-�����Ɠǂ݂܂��傤�B
+ちゃんと読みましょう。
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/03.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/03.JPG" width="400">
 
-###3.�C���X�g�[����A�J�E���g�I��
+###3.インストール先アカウント選択
 
-�Г�PC�̏ꍇ�́A�Ǘ��҂Ɋm�F���܂��傤�B
+社内PCの場合は、管理者に確認しましょう。
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/04.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/04.JPG" width="400">
 
-�����ăC���X�g�[����𕷂���܂��̂ŁA��肪�Ȃ���΂��̂܂�[Next]
+続いてインストール先を聞かれますので、問題がなければそのまま[Next]
 
-###4.���ϐ��APython��Ver�̓o�^
+###4.環境変数、PythonのVerの登録
 
-���ɖ��Ȃ���΂��̂܂ܗ���?�ŁB
+特に問題なければそのまま両方?で。
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/05.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/05.JPG" width="400">
 
-���Ƃ͂��̂܂܁A[Finish]�܂Ői�߂܂��傤�B  
-�Ō��Anaconda CLOUD���߂��܂����A���ɖ������Ă���肠��܂���B
+あとはそのまま、[Finish]まで進めましょう。  
+最後にAnaconda CLOUD勧められますが、特に無視しても問題ありません。
 
-##OpenCV�p�b�P�[�W�̃C���X�g�[��
+##OpenCVパッケージのインストール
 
-Anaconda�ł͕W���ŕ����̃p�b�P�[�W�������ς݂ł���OpenCV�͓����Ă��܂���B  
-�������܂��傤�B  
-Anaconda�ł�conda�Ƃ����p�b�P�[�W�Ǘ��V�X�e�����g���܂��B
+Anacondaでは標準で複数のパッケージが導入済みですがOpenCVは入っていません。  
+導入しましょう。  
+Anacondaではcondaというパッケージ管理システムが使えます。
 
-�X�^�[�g���j���[����Anaconda Prompt�𗧂��グ�܂�
+スタートメニューからAnaconda Promptを立ち上げます
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/06.JPG" width="400">
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/07.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/06.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/07.JPG" width="400">
 
-�ȉ��̃R�}���h����͂��܂�
+以下のコマンドを入力します
 
 > c:\\\>conda install -c https://conda.anaconda.org/menpo opencv3
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/08.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/08.JPG" width="400">
 
-���ɓ����Ă���ꍇ�̓o�[�W�����`�F�b�N���Ă���܂��B 
+既に入っている場合はバージョンチェックしてくれます。 
 
-��
+が
 
-�Ǘ��Ҏ��s���Ă��Ȃ��������߂ɓ{���Ă��܂��܂����B
+管理者実行していなかったために怒られてしまいました。
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/09.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/09.JPG" width="400">
 
-���̏ꍇ�̓V���[�g�J�b�g�A�C�R�����E�N���b�N����[�Ǘ��҂Ƃ��Ď��s(A)]�ŋN�����Ȃ����܂��傤�B
+その場合はショートカットアイコンを右クリックして[管理者として実行(A)]で起動しなおしましょう。
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/10.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/10.JPG" width="400">
 
-[y]����͂��Ď��ɐi�݂܂��B
+[y]を入力して次に進みます。
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/11.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/11.JPG" width="400">
 
-���x�͂��܂��������悤�ł��B  
-����ł́A���̂܂܉��L�̂悤�ɃR�}���h���͂��āAPython����C���X�g�[���̉ۂ��`�F�b�N�����Ă݂܂��傤�B
+今度はうまくいったようです。  
+それでは、そのまま下記のようにコマンド入力して、Pythonからインストールの可否もチェックもしてみましょう。
 
 > c:\\\>python  
 > \>\>\>import cv2  
 > \>\>\>cv2.\_\_version\_\_  
 
-�Ȃ��cv"2"��˂�B
+なんでcv"2"やねん。
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/12.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/12.JPG" width="400">
 
-���v�����ł��B
+大丈夫そうです。
 
-##IDE�̎g�p
+##IDEの使用
 
-�R�}���h�v�����v�g�ł��̂܂܃v���O���~���O���Ă��\���܂���  
-�܊p�Ȃ̂�IDE�i�����J�����j���g�p����rich�Ƀv���O���~���O���܂��傤�B
+コマンドプロンプトでそのままプログラミングしても構いませんが  
+折角なのでIDE（統合開発環境）を使用してrichにプログラミングしましょう。
 
-Anaconda�ł�Spyder���C���X�g�[������Ă��܂��B  
-�ӂ����сA�X�^�[�g���j���[����Spyder�𗧂��グ�܂��B
+AnacondaではSpyderがインストールされています。  
+ふたたび、スタートメニューからSpyderを立ち上げます。
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/06.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/06.JPG" width="400">
 
-�N�����Ƀl�b�g���[�N�Z�L�����e�B�[�u����܂��B
+起動時にネットワークセキュリティー訊かれます。
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/13.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/13.JPG" width="400">
 
-�Z�L�����e�B�[�ݒ��������ɁA����������ƃA�b�v�f�[�g�ē����\������邩������܂���B  
-�����߂ȐS�ŕ��Ă��܂��܂��傤�B  
-�i�o�b�O���Ă���̂�����Ver�ł͉��̂�OK�{�^���������܂���BClose���Ă��܂��傤�j
+セキュリティー設定をした後に、もしかするとアップデート案内が表示されるかもしれません。  
+無慈悲な心で閉じてしまいましょう。  
+（バッグっているのかこのVerでは何故かOKボタンが効きません。Closeしてやりましょう）
 
-<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/InstallationPython/image/14.JPG" width="400">
+<img src="https://raw.githubusercontent.com/brookmantech/Documents/master/html/InstallationPython/image/14.JPG" width="400">
 
-�����H�N�����ď��������ł��B  
-����ꂳ�܂ł����B
+無事？起動して準備完了です。  
+お疲れさまでした。
