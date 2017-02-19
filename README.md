@@ -18,7 +18,7 @@ wiki
 
 
 Brookman Technology Co., Ltd. also provides lectures and consulting on image sensors  
-in addition to product sales and consignment design.
+in addition to product sales and consignment design.  
 Please feel free to ask.
 
 *****  
