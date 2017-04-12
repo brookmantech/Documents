@@ -16,7 +16,7 @@ For details, please contact us from [official website][website].
 
 Because this is sample code, please adjust the parameters according to setting.
 
-##Requirement
+## Requirement
 
 You have to install Python3.x and OpenCV3.
 
@@ -26,10 +26,10 @@ You have to install Python3.x and OpenCV3.
 - OpenCV 3.1.0
 - numpy 1.11.1
 
-##Usage
+## Usage
 
 
-##LICENCE
+## LICENCE
 
 This software is released under the MIT License, see LICENSE.txt.
 
