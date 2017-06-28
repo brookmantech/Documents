@@ -1,3 +1,4 @@
+image::http://brookmantech.com/img/logo.png[BT logo]
 = Split Plan
 
 [width="50%"]
