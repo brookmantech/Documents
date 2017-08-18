@@ -1,0 +1,100 @@
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react-dom.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+<script src="https://unpkg.com/react-jsonschema-form/dist/react-jsonschema-form.js"></script>
+<script type="text/javascript">
+$(()=>{
+  var width = 2256;
+  var height = 1178;
+
+  //APIチェック
+  if(window.File && window.FileReader) {
+      //File API
+      //alert("ご使用のブラウザはFile APIを実装しています");
+  }else{
+      alert("ご使用のブラウザはFile APIをサポートしていません");
+  }
+
+  //canvas
+  var canvas = $('#cnv')[0];
+  var context = canvas.getContext('2d');
+  context.fillStyle - "#000000";
+  context.fillRect(0,0,2256,1178);
+  var src = context.getImageData(0,0,canvas.width,canvas.height);
+
+　//D&D設定
+  var droppable = $("#droppable");
+  var cancelEvent = function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+  }
+  droppable.bind("dragenter", cancelEvent);
+  droppable.bind("dragover", cancelEvent);
+  droppable.bind("drop", (event)=> {
+    var file = event.originalEvent.dataTransfer.files[0];
+    //$('#a').val(file);
+    //console.log(file.name);
+    //console.log(file.size);
+    //console.log(file);
+
+    var bitshift = $("#bitshift").val();
+    //var bitshift = Math.pow(2,$("#bitshift").val());
+    var reader = new FileReader();
+    reader.onload = function(evt){
+      for (let y = 0; y < src.height; y++) {
+        for (let x = 0; x < src.width; x++) {
+          var idx = (x + y * width) * 4;
+          var idx2 = (x + y * width) * 4;
+
+          var total = evt.target.result.charCodeAt(idx2 + 0) * 1
+                    + evt.target.result.charCodeAt(idx2 + 1) * 256
+                    + evt.target.result.charCodeAt(idx2 + 2) * 65536
+                    + evt.target.result.charCodeAt(idx2 + 3) * 16777216;
+          total = total >> bitshift //unsigned -> signed 32bit, and bitshift
+          //total = total / bitshift;
+          if(total > 255) total = 255;
+          if(total < 0) total = 0;
+          src.data[idx] = total;
+          src.data[idx+1] = total;
+          src.data[idx+2] = total;
+          src.data[idx+3] = 0xFF;
+        }
+      }
+      context.putImageData(src, 0, 0);
+    }
+    reader.readAsBinaryString(file);
+    cancelEvent(event);
+    return false;
+  });
+/*
+  $('#file1').change(function(e) {
+		var files = e.target.files;
+		var oFile = files[0];
+		let m_file_name = oFile.name;
+
+    $('#a').val(m_file_name);
+	});
+  */
+  /*
+  <div>
+    <input id="file1" type="file" name="file1" multiple /><br/>
+    <input id="a" />
+  </div>
+  */
+})
+</script>
+
+<body>
+<div id="droppable" style="height:100px;border: gray solid 1px;">
+  ファイルをドロップしてください。
+</div>
+<div>
+  <label>bitshift</label>
+  <input type="number" id="bitshift" value="0"/>
+</div>
+<div>
+    <canvas id="cnv" width="2256" height="1178"/>
+</div>
+</body>
