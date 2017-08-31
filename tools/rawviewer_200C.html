@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8">
+  <title>200C Raw Data Viewer</title>
+</head>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://unpkg.com/react@15.6.1/dist/react.min.js"></script>
+<script src="https://unpkg.com/react-dom@15.6.1/dist/react-dom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.38/browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.31.2/react-bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
+<style>
+.navbar-brand {
+  background: url("../img/logo_w.mini.svg") no-repeat left center;
+  background-size: contain;
+  height: 50px;
+  width: 250px;
+}
+</style>
+<body>
+  <div id="app" />
+  <script type="text/babel">
+
+  let { Button, DropdownButton, MenuItem, FieldGroup,
+        Grid, Row, Col,Jumbotron,
+        Form, FormGroup ,
+        FormControl,ControlLabel ,HelpBlock,
+        Navbar, Nav, NavItem,NavDropdown} = window.ReactBootstrap;
+
+  class Header extends React.Component {
+    constructor(props) {
+      super(props)
+    }
+    render() {
+      return (
+        <Navbar inverse fixedTop >
+          <Navbar.Header>
+            <Navbar.Brand right>
+              <a class="navbar-brand  navbar-right" href="#"></a>
+            </Navbar.Brand>
+          </Navbar.Header>
+        </Navbar>
+      );
+    }
+  }
+
+  class DnD extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = { name : "null" };
+      this.css = {
+        color:  'glay',
+        border: 'dashed 1px',
+        height: '150px',
+        margin: '50px 50px 0px 50px',
+        textAlign: 'center'
+      }
+      this.cssbutton = {
+        margin: '10px 0px 50px 50px',
+      }
+      this.cssinner = {
+        display: 'inline-block'
+      }
+      this.csstablecell = {
+        display: 'table-cell',
+        verticalAlign: 'middle',
+        textAlign: 'center',
+        height: '150px'
+      }
+    }
+    propTypes: {
+      onChange: React.PropTypes.func.isRequired
+    }
+    componentDidMount() {
+      //drag & drop
+      var droppable = $("#drop_zone");
+      var cancelEvent = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
+      droppable.bind("dragenter", cancelEvent);
+      droppable.bind("dragover", cancelEvent);
+      droppable.bind("drop", (event)=> {
+        var hoge = event.originalEvent.dataTransfer.files[0];
+        cancelEvent(event);
+        this.setState({ name : hoge.name});
+        this.props.onChange(hoge);
+        return false;
+      });
+    }
+    onChange(e) {
+      var hoge = e.target.files[0];
+      console.log(hoge.name);
+      this.setState({ name : hoge.name});
+      this.props.onChange(hoge);
+    }
+    render() {
+      return (
+        <div>
+          <div id="drop_zone" style={this.css}>
+            <div class="inner" style={this.cssinner}>
+              <div class="tablecell" style={this.csstablecell}>
+                <p>Drop files here</p>
+                <p>{this.state.name}</p>
+              </div>
+            </div>
+          </div>
+          <div style={this.cssbutton}>
+            <input id="selectfile" type="file"
+              onChange={this.onChange.bind(this)} />
+          </div>
+        </div>
+      );
+    }
+  }
+
+  class Cnv extends React.Component {
+    constructor(props) {
+      super(props);
+      this.width = 2256;
+      this.height = 1178
+    }
+    componentDidMount(){
+      var canvas = $('#cnv')[0];
+      var context = canvas.getContext('2d');
+      context.fillStyle = "#000000";
+      context.fillRect(0,0,this.width,this.height);
+    }
+    componentWillReceiveProps(nextProps){
+      console.log("redraw");
+      var bitshift = nextProps.values.bitshift;
+      var offset = nextProps.values.offset;
+
+      var canvas = $('#cnv')[0];
+      var context = canvas.getContext('2d');
+
+      context.fillStyle = "#000000";
+      context.fillRect(0,0,this.width,this.height);
+      var src = context.getImageData(0,0,canvas.width,canvas.height);
+      var reader = new FileReader();
+      reader.onload = function(evt){
+        var buf = new Uint8Array(evt.target.result);
+        var bufindex = 0;
+        for (let i = 0; i < src.height * src.width * 4; i+=4) {
+          var idx = i * 4;
+          var pix = ( buf[bufindex + 0] )
+                  | ( buf[bufindex + 1] << 8 )
+                  | ( buf[bufindex + 2] << 16 )
+                  | ( buf[bufindex + 3] << 24 ); //unsigned -> signed
+          bufindex += 4;
+          pix = (pix >> bitshift) + (offset >> bitshift)
+          if(pix > 255) pix = 255;
+          else if(pix < 0) pix = 0;
+          src.data[i+0] = pix;
+          src.data[i+1] = pix;
+          src.data[i+2] = pix;
+          src.data[i+3] = 0xFF;
+        }
+        context.putImageData(src, 0, 0);
+      }
+      reader.readAsArrayBuffer(nextProps.src);
+    }
+    render() {
+      return (
+        <div width="200">
+          <canvas id="cnv" width="2256" height="1178" style={{width:"100%"}}/>
+        </div>
+      );
+    }
+  }
+
+  class Controller extends React.Component {
+    constructor(props) {
+      super(props);
+    }
+    propTypes: {
+      onChange: React.PropTypes.func.isRequired
+    }
+    onChange() {
+      this.props.onChange({
+        bitshift : ReactDOM.findDOMNode(this.refs.bitshift).value,
+        offset: ReactDOM.findDOMNode(this.refs.offset).value
+      });
+    }
+    render() {
+      return (
+        <div style={{margin: '50px 50px 0px 50px'}}>
+          <Form horizontal>
+            <FormGroup controlId="formHorizontalEmail">
+              <Col componentClass={ControlLabel} sm={2}>
+                bitshift
+              </Col>
+              <Col sm={10}>
+                <FormControl type="number" placeholder="number"
+                  ref="bitshift"
+                  defaultValue={this.props.values.bitshift}
+                  onChange={this.onChange.bind(this)} />
+              </Col>
+            </FormGroup>
+            <FormGroup controlId="formHorizontalPassword">
+              <Col componentClass={ControlLabel} sm={2}>
+                offset
+              </Col>
+              <Col sm={10}>
+                <FormControl type="number" placeholder="number"
+                  ref="offset"
+                  defaultValue={this.props.values.offset}
+                  onChange={this.onChange.bind(this)} />
+              </Col>
+            </FormGroup>
+          </Form>
+        </div>
+      );
+    }
+  }
+
+  class App extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        file : null,
+        values : {bitshift: 0, offset : 0}
+      };
+    }
+    DnDChange(hoge) {
+      this.setState({ file: hoge });
+    }
+    ContChange(hoge) {
+            console.log("ContChange");
+      this.setState({values: {
+        bitshift: hoge.bitshift,
+        offset : hoge.offset}
+      });
+    }
+    render() {
+      return (
+        <div>
+          <Header />
+          <div>
+            <Jumbotron style={{margin:"50px 0px 0px 0px"}}>
+              <h2>BT200C Raw Data Viewer</h2>
+              <p>dst[] = (src[] >> bitshift) + (offset >> bitshift)</p>
+            </Jumbotron>
+            <Controller
+              values={this.state.values}
+              onChange={this.ContChange.bind(this)} />
+            <DnD onChange={this.DnDChange.bind(this)} />
+            <Cnv src={this.state.file}
+                 values={this.state.values} />
+          </div>
+        </div>
+      );
+    }
+  }
+
+  ReactDOM.render(<App />, document.querySelector('#app'));
+
+  </script>
+</body>
+</html>
