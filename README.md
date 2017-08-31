@@ -17,12 +17,12 @@ wiki
 お気軽にご相談ください。
 
 
-Brookman Technology Co., Ltd. also provides lectures and consulting on image sensors  
+Brookman Technology, Ltd. also provides lectures and consulting on image sensors  
 in addition to product sales and consignment design.  
 Please feel free to ask.
 
 *****  
 
-&copy; 2017 Brookman Technology Inc.
+&copy; 2017 Brookman Technology, Inc.
 
 [website]: http://brookmantech.com/ "Brookman Technology"
