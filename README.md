@@ -1,4 +1,4 @@
-![BT logo](http://brookmantech.com/img/logo.mini.svg "logo")
+![BT logo](/img/logo.mini.svg "logo")
 # Technical Documentation for Image Sensor
 
 Brookman Technology, Ltd. also provides lectures and consulting on image sensors  
