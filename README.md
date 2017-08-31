@@ -25,4 +25,4 @@ Please feel free to ask.
 
 &copy; 2017 Brookman Technology, Inc.
 
-[website]: http://brookmantech.com/ "Brookman Technology"
+[website]: http://brookmantech.com/top.html "Brookman Technology"
