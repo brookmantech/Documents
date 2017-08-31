@@ -240,11 +240,14 @@
           <div>
             <Jumbotron style={{margin:"50px 0px 0px 0px"}}>
               <h2>BT200C Raw Data Viewer</h2>
-              <p>dst[] = (src[] >> bitshift) + (offset >> bitshift)</p>
+              <p>It is a simple DEMO to show BT200C raw image without demosaicing and staggering. You can set offset and bitshift.</p>
+              <p>Use the formula <i>dst[] = (src[] >> bitshift) + (offset >> bitshift)</i></p>
+              <a href="https://github.com/brookmantech/documents/wiki">Python and C# code examples.</a>
             </Jumbotron>
             <Controller
               values={this.state.values}
               onChange={this.ContChange.bind(this)} />
+              <sub>dst[] = (src[] >> bitshift) + (offset >> bitshift)</sub>
             <DnD onChange={this.DnDChange.bind(this)} />
             <Cnv src={this.state.file}
                  values={this.state.values} />
