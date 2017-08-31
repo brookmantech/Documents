@@ -1,28 +1,32 @@
-![BT logo](http://brookmantech.com/img/logo.png "logo")
+![BT logo](http://brookmantech.com/img/logo.mini.svg "logo")
 # Technical Documentation for Image Sensor
-
-[official website][website]  
-
-
-GitHub Pages  
-<https://brookmantech.github.io/Documents/html/>
-
-
-wiki  
-<https://github.com/brookmantech/Documents/wiki>
-
-
-株式会社ブルックマンテクノロジでは自社製品の販売・カスタムセンサ受託設計に加え  
-イメージセンサに関わる講演・コンサルティングも承っております。  
-お気軽にご相談ください。
-
 
 Brookman Technology, Ltd. also provides lectures and consulting on image sensors  
 in addition to product sales and consignment design.  
 Please feel free to ask.
 
+株式会社ブルックマンテクノロジでは自社製品の販売・カスタムセンサ受託設計に加え  
+イメージセンサに関わる講演・コンサルティングも承っております。  
+お気軽にご相談ください。
+
+[official website][website]  
+
+## Documentation
+
+GitHub Pages  
+<https://brookmantech.github.io/documents/html/>
+
+Wiki  
+<https://github.com/brookmantech/documents/wiki>
+
+## Web Tools
+
+<https://brookmantech.github.io/documents/tools/>
+
+
+
 *****  
 
-&copy; 2017 Brookman Technology, Inc.
+&copy; 2017 Brookman Technology, Inc..
 
 [website]: http://brookmantech.com/top.html "Brookman Technology"
