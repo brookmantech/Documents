@@ -8,6 +8,9 @@
 <script src="https://unpkg.com/react-dom@15.6.1/dist/react-dom.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.38/browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.31.2/react-bootstrap.min.js"></script>
+
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_CHTML"></script>
+
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
 <style>
 .navbar-brand {
@@ -241,7 +244,7 @@
             <Jumbotron style={{margin:"50px 0px 0px 0px"}}>
               <h2>BT200C Raw Data Viewer</h2>
               <p>It is a simple DEMO to show BT200C raw image without demosaicing and staggering. You can set offset and bitshift.</p>
-              <p>Use the formula <i>dst[] = (src[] >> bitshift) + (offset >> bitshift)</i></p>
+              <p>Use the formula : \( dst[] = (src[] >> bitshift) + (offset >> bitshift) \)</p>
               <a href="https://github.com/brookmantech/documents/wiki">Python and C# code examples.</a>
             </Jumbotron>
             <Controller
