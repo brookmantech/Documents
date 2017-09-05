@@ -1,7 +1,7 @@
 ![BT logo](/img/logo.png "logo")
 # Technical Documentation for Image Sensor
 
-Brookman Technology, Ltd. also provides lectures and consulting on image sensors in addition to product sales and consignment design.  
+Brookman Technology, Inc. also provides lectures and consulting on image sensors in addition to product sales and consignment design.  
 Please feel free to ask.
 
 株式会社ブルックマンテクノロジでは自社製品の販売・カスタムセンサ受託設計に加えイメージセンサに関わる講演・コンサルティングも承っております。  
