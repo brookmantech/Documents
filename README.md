@@ -14,7 +14,7 @@ Please feel free to ask.
 ## Documentation
 
 GitHub Pages  
-<https://brookmantech.github.io/documents/html/>
+<https://brookmantech.github.io/documents/>
 
 Wiki  
 <https://github.com/brookmantech/documents/wiki>
