@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8">
+  <title>200C Raw Data Viewer</title>
+
+  <script src="https://unpkg.com/react@15.6.1/dist/react.min.js"></script>
+  <script src="https://unpkg.com/react-dom@15.6.1/dist/react-dom.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/5.0.6/react-redux.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.38/browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/immutable/3.8.1/immutable.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.4.2/js-yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.31.2/react-bootstrap.min.js"></script>
+
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_CHTML"></script>
+</head>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
+<style>
+.navbar-brand {
+  background: url("../img/logo_w.mini.svg") no-repeat left center;
+  background-size: contain;
+  height: 50px;
+  width: 250px;
+}
+</style>
+
+<body>
+  <div id="app" />
+  <script type="text/babel">
+
+  let { Button, DropdownButton, MenuItem, FieldGroup,
+        Grid, Row, Col,Jumbotron,
+        Form, FormGroup ,
+        FormControl,ControlLabel ,HelpBlock,
+        Navbar, Nav, NavItem,NavDropdown} = window.ReactBootstrap;
+
+  const defaultState = {
+    models : {
+      "BT200C": {
+        width : 2256,
+        height : 1178,
+        func : (src, i)=>bitconvert(src,i)
+      },
+      "BT130A": {
+        width : 1376,
+        height : 1034,
+        func : (src, i)=>bitconvert2(src,i)
+      },
+      "BT033A": {
+        width : 688,
+        height : 492,
+        func : (src, i)=>bitconvert2(src,i)
+      }
+    },
+    model : "",
+    width : 2256,
+    height : 1178,
+    bitshift : 0,
+    offset : 0,
+    filename : {name :"null"},
+    onload : true
+  };
+
+  /*logic*/
+
+  function bitconvert(src,startindex){
+    let index = startindex*4;
+    let dst   = ( src[index + 0] )
+              | ( src[index + 1] << 8 )
+              | ( src[index + 2] << 16 )
+              | ( src[index + 3] << 24 ); //unsigned -> signed
+    return dst;
+  }
+  function bitconvert2(src,startindex){
+    let index = startindex*2;
+    return ( src[index + 0] )
+            | ( src[index + 1] << 8 );
+  }
+  function rawdecorder(element, file, width, height, offset, bitshift, func){
+
+    let canvas = element;
+    let context = canvas.getContext('2d');
+
+    context.fillStyle = "#000000";
+    context.fillRect(0, 0, width, height);
+
+    let src = context.getImageData(0, 0, canvas.width, canvas.height);
+    let reader = new FileReader();
+    reader.onload = function(evt){
+      let buf = new Uint8Array(evt.target.result);
+      let bufindex = 0;
+
+      let idx = 0;
+      for (let i = 0; i < src.height * src.width; i++) {
+
+        let pix = func(buf, i);
+
+        pix = (pix >> bitshift) + (offset >> bitshift)
+
+        if(pix > 255) pix = 255;
+        else if(pix < 0) pix = 0;
+
+        src.data[idx+0] = pix;
+        src.data[idx+1] = pix;
+        src.data[idx+2] = pix;
+        src.data[idx+3] = 0xFF;
+        idx += 4;
+
+      }
+      context.putImageData(src, 0, 0);
+    }
+    reader.readAsArrayBuffer(file);
+  }
+
+
+  /******** Action, Action Creators, Reducers, store ********/
+
+  const initialState = Immutable.Map(defaultState);
+
+  const fileread =(i)=>({ type: 'READ', value: i });
+  const changeparam =(i)=>({ type: 'CHANGE', value: i });
+  const changemodel =(i)=>({ type: 'MODEL', value: i });
+  const onload =()=>({ type: 'ONLOAD'});
+
+  const reducers = {
+    'ERR' : (state, action) => {
+      console.log(action.value.error);
+      return state.set('onload', false)
+    },
+    'ONLOAD' : (state, action) => (
+      state.set('onload', true)
+    ),
+    'READ' : (state, action) => (
+      state.withMutations(m => (
+        m.set('onload', false)
+        .set('filename', action.value)
+      ))
+    ),
+    'MODEL' : (state, action) => (
+      state.withMutations(m => (
+        m.set('onload', false)
+        .set('model', action.value)
+        .set('width', state.get('models')[action.value].width)
+        .set('height', state.get('models')[action.value].height)
+      ))
+    ),
+    'CHANGE' : (state, action) => (
+      state.withMutations(m => (
+        m.set('onload', false)
+        .set('bitshift', action.value.bitshift)
+        .set('offset', action.value.offset)
+      ))
+    ),
+    "@@redux/INIT" : (state, action) =>{
+        return state.set('onload', false);
+    }
+  };
+
+  function Reducer(state = initialState, action) {
+    console.log(action.type);
+    console.log(action.value);
+    return reducers[action.type]
+      ? reducers[action.type](state, action)
+      : state;
+  }
+  let store = Redux.createStore(Reducer);
+
+
+  /******** React Components ********/
+
+  const mapStateToProps =(state)=>({ state: state });
+
+  class Header extends React.Component {
+    render() {
+      return (
+        <Navbar inverse fixedTop >
+          <Navbar.Header>
+            <Navbar.Brand right>
+              <a class="navbar-brand  navbar-right" href="#"></a>
+            </Navbar.Brand>
+          </Navbar.Header>
+        </Navbar>
+      );
+    }
+  }
+
+  class uController extends React.Component {
+    onChange() {
+      this.props.dispatch(changeparam({
+        bitshift : ReactDOM.findDOMNode(this.refs.bitshift).value,
+        offset : ReactDOM.findDOMNode(this.refs.offset).value
+      }));
+    }
+    render() {
+      const selectvalue =(n)=> Object.keys(n).map(x=> <option value={x}>{x}</option>);
+      return (
+        <div style={{margin: '50px 50px 0px 50px'}}>
+          <Form horizontal>
+            <FormGroup controlId="formControlsSelect">
+              <ControlLabel>Select</ControlLabel>
+              <FormControl componentClass="select" placeholder="select"
+                ref="model"
+                onChange={()=>this.props.dispatch(changemodel(ReactDOM.findDOMNode(this.refs.model).value))}
+                >
+                {selectvalue(this.props.state.get('models'))}
+              </FormControl>
+            </FormGroup>
+            <FormGroup controlId="formHorizontalEmail">
+              <Col componentClass={ControlLabel} sm={2}>
+                bitshift
+              </Col>
+              <Col sm={10}>
+                <FormControl type="number" placeholder="number"
+                  ref="bitshift"
+                  value={this.props.state.get('bitshift')}
+                  onChange={this.onChange.bind(this)} />
+              </Col>
+            </FormGroup>
+            <FormGroup controlId="formHorizontalPassword">
+              <Col componentClass={ControlLabel} sm={2}>
+                offset
+              </Col>
+              <Col sm={10}>
+                <FormControl type="number" placeholder="number"
+                  ref="offset"
+                  value={this.props.state.get('offset')}
+                  onChange={this.onChange.bind(this)} />
+              </Col>
+            </FormGroup>
+          </Form>
+        </div>
+      );
+    }
+  }
+  var Controller = ReactRedux.connect(mapStateToProps)(uController);
+
+  class uDnD extends React.Component {
+    constructor(props) {
+      super(props);
+      this.css = {
+        color:  'glay',
+        border: 'dashed 1px',
+        height: '150px',
+        margin: '50px 50px 0px 50px',
+        textAlign: 'center'
+      }
+      this.cssbutton = {
+        margin: '10px 0px 50px 50px',
+      }
+      this.cssinner = {
+        display: 'inline-block'
+      }
+      this.csstablecell = {
+        display: 'table-cell',
+        verticalAlign: 'middle',
+        textAlign: 'center',
+        height: '150px'
+      }
+    }
+    componentDidMount() {
+      //drag & drop
+      var droppable = $(".drop_zone");
+      var cancelEvent = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
+      droppable.bind("dragenter", cancelEvent);
+      droppable.bind("dragover", cancelEvent);
+      droppable.bind("drop", (event)=> {
+        var path = event.originalEvent.dataTransfer.files[0];
+        cancelEvent(event);
+        this.onChange(path);
+        return false;
+      });
+    }
+    onChange(fileobj) {
+      this.props.dispatch(fileread(fileobj));
+    }
+    render() {
+      return (
+        <div>
+          <div className="drop_zone" style={this.css}>
+            <div className="inner" style={this.cssinner}>
+              <label className="tablecell" style={this.csstablecell}>
+                <p>Drop files here or Click</p>
+                <p>{this.props.state.get('filename').name}</p>
+                <input ref="inputfile" type="file" style={{display:"none"}}
+                     onChange={()=>this.onChange(ReactDOM.findDOMNode(this.refs.inputfile).files[0])} />
+              </label>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  }
+  var DnD = ReactRedux.connect(mapStateToProps)(uDnD);
+
+  class uCnv extends React.Component {
+    componentDidMount(){
+      // let canvas = ReactDOM.findDOMNode(this.refs.cnv);
+      // let context = canvas.getContext('2d');
+      // context.fillStyle = "#000000";
+      // context.fillRect(0,0,this.props.state.get('width'),this.props.state.get('height'));
+    }
+    componentWillReceiveProps(nextProps){
+      if(this.props.state.get('model') != nextProps.state.get('model')){
+        let canvas = ReactDOM.findDOMNode(this.refs.cnv);
+        let context = canvas.getContext('2d');
+        context.fillStyle = "#000000";
+        context.fillRect(0,0,nextProps.state.get('width'),nextProps.state.get('height'));
+      }else{
+        rawdecorder(
+          ReactDOM.findDOMNode(this.refs.cnv),
+          nextProps.state.get('filename'),
+          nextProps.state.get('width'),
+          nextProps.state.get('height'),
+          nextProps.state.get('offset'),
+          nextProps.state.get('bitshift'),
+          nextProps.state.get('models')[nextProps.state.get('model')].func
+        )
+      }
+    }
+    render() {
+      return (
+        <div width="200">
+          <canvas id="cnv" ref="cnv"
+            width={this.props.state.get('width')}
+            height={this.props.state.get('height')}
+            style={{width:"100%"}}/>
+        </div>
+      );
+    }
+  }
+  var Cnv = ReactRedux.connect(mapStateToProps)(uCnv);
+
+
+  class uApp extends React.Component {
+    render() {
+      return (
+        <div>
+          <Header />
+          <div>
+            <Jumbotron style={{margin:"50px 0px 0px 0px"}}>
+              <h2>BT200C Raw Data Viewer</h2>
+              <p>It is a simple DEMO to show BT200C raw image without demosaicing and staggering. You can set offset and bitshift.</p>
+              <p>Use the formula : \( dst[] = (src[] >> bitshift) + (offset >> bitshift) \)</p>
+              <a href="https://github.com/brookmantech/documents/wiki">Python and C# code examples.</a>
+            </Jumbotron>
+            <Controller />
+            <DnD />
+            <Cnv />
+          </div>
+        </div>
+      );
+    }
+  }
+  var App = ReactRedux.connect(mapStateToProps)(uApp);
+
+
+  /******** Provider, Render ********/
+
+  var Provider = ReactRedux.Provider;
+  ReactDOM.render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+    document.querySelector('#app')
+  );
+
+
+  </script>
+</body>
+</html>
