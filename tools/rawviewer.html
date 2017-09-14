@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
-  <title>200C Raw Data Viewer</title>
+  <title>Raw Data Viewer</title>
 
   <script src="https://unpkg.com/react@15.6.1/dist/react.min.js"></script>
   <script src="https://unpkg.com/react-dom@15.6.1/dist/react-dom.min.js"></script>
@@ -55,12 +55,12 @@
         func : (src, i)=>bitconvert2(src,i)
       }
     },
-    model : "",
+    model : "BT200C",
     width : 2256,
     height : 1178,
     bitshift : 0,
     offset : 0,
-    filename : {name :"null"},
+    file : {name :"null"},
     onload : true
   };
 
@@ -136,7 +136,7 @@
     'READ' : (state, action) => (
       state.withMutations(m => (
         m.set('onload', false)
-        .set('filename', action.value)
+        .set('file', action.value)
       ))
     ),
     'MODEL' : (state, action) => (
@@ -145,6 +145,7 @@
         .set('model', action.value)
         .set('width', state.get('models')[action.value].width)
         .set('height', state.get('models')[action.value].height)
+        .set('file', {name : "null"})
       ))
     ),
     'CHANGE' : (state, action) => (
@@ -173,6 +174,7 @@
 
   const mapStateToProps =(state)=>({ state: state });
 
+
   class Header extends React.Component {
     render() {
       return (
@@ -187,7 +189,8 @@
     }
   }
 
-  class uController extends React.Component {
+
+  let Controller = ReactRedux.connect(mapStateToProps)(class Controller extends React.Component {
     onChange() {
       this.props.dispatch(changeparam({
         bitshift : ReactDOM.findDOMNode(this.refs.bitshift).value,
@@ -234,10 +237,10 @@
         </div>
       );
     }
-  }
-  var Controller = ReactRedux.connect(mapStateToProps)(uController);
+  });
 
-  class uDnD extends React.Component {
+
+  let DnD = ReactRedux.connect(mapStateToProps)(class uDnD extends React.Component {
     constructor(props) {
       super(props);
       this.css = {
@@ -287,7 +290,7 @@
             <div className="inner" style={this.cssinner}>
               <label className="tablecell" style={this.csstablecell}>
                 <p>Drop files here or Click</p>
-                <p>{this.props.state.get('filename').name}</p>
+                <p>{this.props.state.get('file').name}</p>
                 <input ref="inputfile" type="file" style={{display:"none"}}
                      onChange={()=>this.onChange(ReactDOM.findDOMNode(this.refs.inputfile).files[0])} />
               </label>
@@ -296,26 +299,23 @@
         </div>
       );
     }
-  }
-  var DnD = ReactRedux.connect(mapStateToProps)(uDnD);
+  });
 
-  class uCnv extends React.Component {
-    componentDidMount(){
-      // let canvas = ReactDOM.findDOMNode(this.refs.cnv);
-      // let context = canvas.getContext('2d');
-      // context.fillStyle = "#000000";
-      // context.fillRect(0,0,this.props.state.get('width'),this.props.state.get('height'));
+
+  let Cnv = ReactRedux.connect(mapStateToProps)(class Cnv extends React.Component {
+    componentDidUpdate(){
+      let canvas = ReactDOM.findDOMNode(this.refs.cnv);
+      let context = canvas.getContext('2d');
+      context.fillStyle = "#000000";
+      context.fillRect(0,0,this.props.state.get('width'),this.props.state.get('height'));
     }
     componentWillReceiveProps(nextProps){
       if(this.props.state.get('model') != nextProps.state.get('model')){
-        let canvas = ReactDOM.findDOMNode(this.refs.cnv);
-        let context = canvas.getContext('2d');
-        context.fillStyle = "#000000";
-        context.fillRect(0,0,nextProps.state.get('width'),nextProps.state.get('height'));
+
       }else{
         rawdecorder(
           ReactDOM.findDOMNode(this.refs.cnv),
-          nextProps.state.get('filename'),
+          nextProps.state.get('file'),
           nextProps.state.get('width'),
           nextProps.state.get('height'),
           nextProps.state.get('offset'),
@@ -327,26 +327,26 @@
     render() {
       return (
         <div width="200">
-          <canvas id="cnv" ref="cnv"
+          <sub>{this.props.state.get('width')} x {this.props.state.get('height')}</sub>
+          <canvas ref="cnv"
             width={this.props.state.get('width')}
             height={this.props.state.get('height')}
             style={{width:"100%"}}/>
         </div>
       );
     }
-  }
-  var Cnv = ReactRedux.connect(mapStateToProps)(uCnv);
+  });
 
 
-  class uApp extends React.Component {
+  let App = ReactRedux.connect(mapStateToProps)(class uApp extends React.Component {
     render() {
       return (
         <div>
           <Header />
           <div>
             <Jumbotron style={{margin:"50px 0px 0px 0px"}}>
-              <h2>BT200C Raw Data Viewer</h2>
-              <p>It is a simple DEMO to show BT200C raw image without demosaicing and staggering. You can set offset and bitshift.</p>
+              <h2>Raw Data Viewer</h2>
+              <p>It is a simple DEMO to show BT200C/BT130A/BT033A raw image without demosaicing and staggering. You can set offset and bitshift.</p>
               <p>Use the formula : \( dst[] = (src[] >> bitshift) + (offset >> bitshift) \)</p>
               <a href="https://github.com/brookmantech/documents/wiki">Python and C# code examples.</a>
             </Jumbotron>
@@ -357,13 +357,12 @@
         </div>
       );
     }
-  }
-  var App = ReactRedux.connect(mapStateToProps)(uApp);
+  });
 
 
   /******** Provider, Render ********/
 
-  var Provider = ReactRedux.Provider;
+  let Provider = ReactRedux.Provider;
   ReactDOM.render(
     <Provider store={store}>
       <App />
