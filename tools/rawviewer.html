@@ -10,7 +10,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.38/browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/immutable/3.8.1/immutable.min.js"></script>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.4.2/js-yaml.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.31.2/react-bootstrap.min.js"></script>
 
   <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_CHTML"></script>
@@ -39,23 +38,40 @@
 
   const defaultState = {
     models : {
-      "BT200C": {
+      "BT200CM": {
         width : 2256,
         height : 1178,
-        func : (src, i)=>bitconvert(src,i)
+        func : (src, i)=>bitconvert(src,i),
+        color : false,
+        stagger : 1,
+        coloroffset : {x : 0, y :1}
+      },
+      "BT200CC": {
+        width : 2256,
+        height : 1178,
+        func : (src, i)=>bitconvert(src,i),
+        color : true,
+        stagger : 1,
+        coloroffset : {x : 0, y :1}
       },
       "BT130A": {
         width : 1376,
         height : 1034,
-        func : (src, i)=>bitconvert2(src,i)
+        func : (src, i)=>bitconvert2(src,i),
+        color : false,
+        stagger : 0,
+        coloroffset : {x : 0, y :0}
       },
       "BT033A": {
         width : 688,
         height : 492,
-        func : (src, i)=>bitconvert2(src,i)
+        func : (src, i)=>bitconvert2(src,i),
+        color : false,
+        stagger : 0,
+        coloroffset : {x : 0, y :0}
       }
     },
-    model : "BT200C",
+    model :"BT200CM",
     width : 2256,
     height : 1178,
     bitshift : 0,
@@ -74,12 +90,21 @@
               | ( src[index + 3] << 24 ); //unsigned -> signed
     return dst;
   }
+
   function bitconvert2(src,startindex){
     let index = startindex*2;
     return ( src[index + 0] )
             | ( src[index + 1] << 8 );
   }
-  function rawdecorder(element, file, width, height, offset, bitshift, func){
+
+
+  function rawdecorder(element, file, width, height, offset, bitshift, model){
+
+    console.log(model)
+    let func = model.func;
+    let color = model.color;
+    let stg = model.stagger;
+    let coloroffset = model.coloroffset;
 
     let canvas = element;
     let context = canvas.getContext('2d');
@@ -93,23 +118,75 @@
       let buf = new Uint8Array(evt.target.result);
       let bufindex = 0;
 
-      let idx = 0;
+      //convert
+      let bufpix = new Array(src.height * src.width);
       for (let i = 0; i < src.height * src.width; i++) {
-
         let pix = func(buf, i);
-
-        pix = (pix >> bitshift) + (offset >> bitshift)
-
-        if(pix > 255) pix = 255;
-        else if(pix < 0) pix = 0;
-
-        src.data[idx+0] = pix;
-        src.data[idx+1] = pix;
-        src.data[idx+2] = pix;
-        src.data[idx+3] = 0xFF;
-        idx += 4;
-
+        bufpix[i] = (pix >> bitshift) + (offset >> bitshift)
       }
+
+      //demosaic
+      const to8bit = (n) => n > 255 ? 255 : n < 0 ? 0 : n;
+      for (let y = 1; y < src.height-1; y++) {
+        for (let x = 2; x < src.width-2; x++) {
+          let pix = 0;
+          let index = x+y*src.width;
+          let idx = index * 4;
+          switch(color ? ((x+coloroffset.x)%2)+((y+coloroffset.y)%2)*2 : -1){
+            case 0: //Gr
+              src.data[idx+0] = to8bit((bufpix[index-1]+bufpix[index+1])/2);
+              src.data[idx+1] = to8bit(bufpix[index]);
+              src.data[idx+2] = to8bit((bufpix[index-src.width+stg]+bufpix[index+src.width+stg])/2);
+              break;
+            case 1: //R
+              src.data[idx+0] = to8bit(bufpix[index]);
+              src.data[idx+1] = to8bit((
+                bufpix[index-1]
+                + bufpix[index+1]
+                + bufpix[index-src.width]
+                + bufpix[index+src.width]
+              )/4);
+              src.data[idx+2] = to8bit((
+                  bufpix[index-src.width-1+stg]
+                + bufpix[index-src.width+1+stg]
+                + bufpix[index+src.width-1+stg]
+                + bufpix[index+src.width+1+stg]
+              )/4);
+              break;
+            case 2: //B
+              src.data[idx+0] = to8bit((
+                  bufpix[index-src.width-1]
+                + bufpix[index-src.width+1]
+                + bufpix[index+src.width-1]
+                + bufpix[index+src.width+1]
+              )/4);
+              src.data[idx+1] = to8bit((
+                  bufpix[index-1+stg]
+                + bufpix[index+1+stg]
+                + bufpix[index-src.width+stg]
+                + bufpix[index+src.width+stg]
+              )/4);
+              src.data[idx+2] = to8bit(bufpix[index]);;
+              break;
+            case 3: //Gb
+              src.data[idx+0] = to8bit((bufpix[index-src.width]+bufpix[index+src.width])/2);
+              src.data[idx+1] = to8bit(bufpix[index+stg]);
+              src.data[idx+2] = to8bit((bufpix[index-1]+bufpix[index+1])/2);;
+              break;
+            default:
+              src.data[idx+0] = to8bit(bufpix[index]);
+              src.data[idx+1] = to8bit(bufpix[index]);
+              src.data[idx+2] = to8bit(bufpix[index]);
+              break;
+          }
+
+          //color gain
+          // src.data[idx+0] = to8bit(src.data[idx+0] * 1.4);
+          // src.data[idx+2] = to8bit(src.data[idx+2] * 1.8);
+          src.data[idx+3] = 0xFF;
+        }
+      }
+
       context.putImageData(src, 0, 0);
     }
     reader.readAsArrayBuffer(file);
@@ -320,7 +397,7 @@
           nextProps.state.get('height'),
           nextProps.state.get('offset'),
           nextProps.state.get('bitshift'),
-          nextProps.state.get('models')[nextProps.state.get('model')].func
+          nextProps.state.get('models')[nextProps.state.get('model')]
         )
       }
     }
@@ -346,7 +423,7 @@
           <div>
             <Jumbotron style={{margin:"50px 0px 0px 0px"}}>
               <h2>Raw Data Viewer</h2>
-              <p>It is a simple DEMO to show BT200C/BT130A/BT033A raw image without demosaicing and staggering. You can set offset and bitshift.</p>
+              <p>It is a simple DEMO to show BT200C/BT130A/BT033A raw image. You can set offset and bitshift. And automatically apply staggered correction.</p>
               <p>Use the formula : \( dst[] = (src[] >> bitshift) + (offset >> bitshift) \)</p>
               <a href="https://github.com/brookmantech/documents/wiki">Python and C# code examples.</a>
             </Jumbotron>
